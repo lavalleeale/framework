@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lavalleeale/framework"
 )
 
 type LemmyPostDetails struct {
@@ -78,15 +79,16 @@ func (h HashQueue) Error(jobIdentifier string, payload HashJob, err error) {
 }
 
 func main() {
-	f := NewFramework()
-	RegisterQueue(f.QueueHandler, HashQueue{})
-	RegisterQueue(f.QueueHandler, UserQueue{})
+	f := framework.NewFramework()
+	framework.RegisterQueue(f.QueueHandler, HashQueue{})
+	framework.RegisterQueue(f.QueueHandler, UserQueue{})
+	f.ConnectRedis("localhost:6379")
 
 	f.Web.Router.POST("/user", func(c *gin.Context) {
 		var job UserJob
 		c.BindJSON(&job)
 		// convert job to json
-		err := f.QueueHandler.addJob(job)
+		err := f.QueueHandler.AddJob(job)
 		if err != nil {
 			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "error"})
@@ -99,7 +101,7 @@ func main() {
 		var job HashJob
 		c.BindJSON(&job)
 		// convert job to json
-		err := f.QueueHandler.addJob(job)
+		err := f.QueueHandler.AddJob(job)
 		if err != nil {
 			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "error"})
@@ -109,8 +111,4 @@ func main() {
 	})
 
 	f.Run()
-}
-
-func NewFramework() {
-	panic("unimplemented")
 }

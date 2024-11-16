@@ -22,14 +22,17 @@ func NewFramework() *Framework {
 
 	framework := &Framework{
 		Web: NewWeb(),
-		rdb: redis.NewClient(&redis.Options{
-			Addr:     "localhost:6379",
-			Password: "", // no password set
-			DB:       0,  // use default DB
-		}),
 	}
 	framework.QueueHandler = NewHandler(framework)
 	return framework
+}
+
+func (f *Framework) ConnectRedis(addr string) {
+	f.rdb = redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 }
 
 func (f *Framework) Run() {

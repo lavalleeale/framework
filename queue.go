@@ -49,11 +49,11 @@ func (q *QueueHandler) Run(numWorkers int) {
 	q.wg.Wait()
 }
 
-func (q *QueueHandler) addJob(job interface{}) error {
-	return q.addJobWithDelay(job, time.Time{})
+func (q *QueueHandler) AddJob(job interface{}) error {
+	return q.AddJobWithDelay(job, time.Time{})
 }
 
-func (q *QueueHandler) addJobWithDelay(job interface{}, after time.Time) error {
+func (q *QueueHandler) AddJobWithDelay(job interface{}, after time.Time) error {
 	jobName := reflect.TypeOf(job).Name()
 	_, ok := q.queues[jobName]
 	if !ok {
