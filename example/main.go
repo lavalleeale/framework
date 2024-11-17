@@ -78,8 +78,20 @@ func (h HashQueue) Error(jobIdentifier string, payload HashJob, err error) {
 	log.Println(err)
 }
 
+type testMigration struct{}
+
+func (m testMigration) Up() string {
+	return `CREATE TABLE IF NOT EXISTS test (id SERIAL PRIMARY KEY, name VARCHAR(255))`
+}
+
+func (m testMigration) Down() string {
+	return `DROP TABLE IF EXISTS test`
+}
+
 func main() {
 	f := framework.NewFramework()
+	f.ConnectDb("postgres://development:development@localhost:5432/development?sslmode=disable")
+	f.Migrate(testMigration{})
 	framework.RegisterQueue(f.QueueHandler, HashQueue{})
 	framework.RegisterQueue(f.QueueHandler, UserQueue{})
 	f.ConnectRedis("localhost:6379")
