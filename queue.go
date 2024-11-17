@@ -75,12 +75,12 @@ func (q *QueueHandler) AddJobWithDelay(job interface{}, after time.Time) error {
 			uuid.String(), after.Format(time.RFC3339))
 	}
 	// add job to redis
-	err = q.framework.rdb.RPush(context.Background(), "jobs",
+	err = q.framework.Rdb.RPush(context.Background(), "jobs",
 		key).Err()
 	if err != nil {
 		return err
 	}
-	err = q.framework.rdb.Set(context.Background(), key, jobJson, 0).Err()
+	err = q.framework.Rdb.Set(context.Background(), key, jobJson, 0).Err()
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (q *QueueHandler) queueWorker() {
 			return
 		}
 		// get next job in list from redis
-		job, err := q.framework.rdb.LPop(context.Background(), "jobs").Result()
+		job, err := q.framework.Rdb.LPop(context.Background(), "jobs").Result()
 		if err != nil {
 			time.Sleep(1 * time.Second)
 			continue
@@ -114,7 +114,7 @@ func (q *QueueHandler) queueWorker() {
 			}
 			// check if time is in the future
 			if time.Now().Before(t) {
-				len, err := q.framework.rdb.RPush(context.Background(), "jobs", job).Result()
+				len, err := q.framework.Rdb.RPush(context.Background(), "jobs", job).Result()
 				if err == nil && len == 1 {
 					time.Sleep(1 * time.Second)
 				}
@@ -127,7 +127,7 @@ func (q *QueueHandler) queueWorker() {
 			continue
 		}
 		// get job data from redis
-		queueData, err := q.framework.rdb.Get(context.Background(), job).Result()
+		queueData, err := q.framework.Rdb.Get(context.Background(), job).Result()
 		if err != nil {
 			continue
 		}

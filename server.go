@@ -17,8 +17,10 @@ type Web struct {
 }
 
 func NewWeb() *Web {
+	router := gin.Default()
+	router.Use(Session)
 	return &Web{
-		Router: gin.Default(),
+		Router: router,
 	}
 }
 

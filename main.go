@@ -10,7 +10,7 @@ import (
 
 type Framework struct {
 	QueueHandler *QueueHandler
-	rdb          *redis.Client
+	Rdb          *redis.Client
 	Web          *Web
 }
 
@@ -28,7 +28,7 @@ func NewFramework() *Framework {
 }
 
 func (f *Framework) ConnectRedis(addr string) {
-	f.rdb = redis.NewClient(&redis.Options{
+	f.Rdb = redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: "", // no password set
 		DB:       0,  // use default DB
