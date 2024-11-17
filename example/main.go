@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha512"
+	"database/sql"
 	"encoding/json"
 	"io"
 	"log"
@@ -80,12 +81,14 @@ func (h HashQueue) Error(jobIdentifier string, payload HashJob, err error) {
 
 type testMigration struct{}
 
-func (m testMigration) Up() string {
-	return `CREATE TABLE IF NOT EXISTS test (id SERIAL PRIMARY KEY, name VARCHAR(255))`
+func (m testMigration) Up(db *sql.DB) error {
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS test (id SERIAL PRIMARY KEY, name VARCHAR(255))`)
+	return err
 }
 
-func (m testMigration) Down() string {
-	return `DROP TABLE IF EXISTS test`
+func (m testMigration) Down(db *sql.DB) error {
+	_, err := db.Exec(`DROP TABLE IF EXISTS test`)
+	return err
 }
 
 func main() {

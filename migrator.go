@@ -1,10 +1,13 @@
 package framework
 
-import "reflect"
+import (
+	"database/sql"
+	"reflect"
+)
 
 type Migration interface {
-	Up() string
-	Down() string
+	Up(*sql.DB) error
+	Down(*sql.DB) error
 }
 
 func (f *Framework) Migrate(migrations ...Migration) {
@@ -19,7 +22,7 @@ func (f *Framework) Migrate(migrations ...Migration) {
 			panic(err)
 		}
 		if !rows.Next() {
-			_, err = f.Db.Query(migration.Up())
+			err = migration.Up(f.Db)
 			if err != nil {
 				panic(err)
 			}
@@ -39,7 +42,7 @@ func (f *Framework) Rollback(migrations ...Migration) {
 			panic(err)
 		}
 		if rows.Next() {
-			_, err = f.Db.Query(migration.Down())
+			err = migration.Down(f.Db)
 			if err != nil {
 				panic(err)
 			}
