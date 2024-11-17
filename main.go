@@ -44,6 +44,10 @@ func (f *Framework) ConnectDb(addr string) {
 	if err != nil {
 		panic(err)
 	}
+	pingErr := db.Ping()
+	if pingErr != nil {
+		log.Fatal(pingErr)
+	}
 	f.Db = db
 }
 
