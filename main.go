@@ -1,8 +1,11 @@
 package framework
 
 import (
+	"database/sql"
 	"log"
 	"sync"
+
+	_ "github.com/lib/pq"
 
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
@@ -10,6 +13,7 @@ import (
 
 type Framework struct {
 	QueueHandler *QueueHandler
+	Db           *sql.DB
 	Rdb          *redis.Client
 	Web          *Web
 }
@@ -35,6 +39,14 @@ func (f *Framework) ConnectRedis(addr string) {
 	})
 }
 
+func (f *Framework) ConnectDb(addr string) {
+	db, err := sql.Open("postgres", addr)
+	if err != nil {
+		panic(err)
+	}
+	f.Db = db
+}
+
 func (f *Framework) Run() {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -47,4 +59,5 @@ func (f *Framework) Run() {
 		f.QueueHandler.Run(10)
 	}()
 	wg.Wait()
+	f.Db.Close()
 }

@@ -41,5 +41,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lavalleeale/SessionSeal v0.0.0-20230616163435-35be5f28bfa5
+	github.com/lib/pq v1.10.9
 	github.com/sendgrid/sendgrid-go v3.16.0+incompatible
 )
