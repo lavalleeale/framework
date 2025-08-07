@@ -2,13 +2,13 @@ package main
 
 import (
 	"crypto/sha512"
-	"database/sql"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/lavalleeale/framework"
 )
 
@@ -81,13 +81,13 @@ func (h HashQueue) Error(jobIdentifier string, payload HashJob, err error) {
 
 type testMigration struct{}
 
-func (m testMigration) Up(db *sql.DB) error {
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS test (id SERIAL PRIMARY KEY, name VARCHAR(255))`)
+func (m testMigration) Up(tx *sqlx.Tx) error {
+	_, err := tx.Exec(`CREATE TABLE IF NOT EXISTS test (id SERIAL PRIMARY KEY, name VARCHAR(255))`)
 	return err
 }
 
-func (m testMigration) Down(db *sql.DB) error {
-	_, err := db.Exec(`DROP TABLE IF EXISTS test`)
+func (m testMigration) Down(tx *sqlx.Tx) error {
+	_, err := tx.Exec(`DROP TABLE IF EXISTS test`)
 	return err
 }
 
@@ -125,5 +125,5 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	f.Run()
+	f.Run(0)
 }

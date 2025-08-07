@@ -1,9 +1,10 @@
 package framework
 
 import (
-	"database/sql"
 	"log"
 	"sync"
+
+	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq"
 
@@ -13,7 +14,7 @@ import (
 
 type Framework struct {
 	QueueHandler *QueueHandler
-	Db           *sql.DB
+	Db           *sqlx.DB
 	Rdb          *redis.Client
 	Web          *Web
 }
@@ -40,7 +41,7 @@ func (f *Framework) ConnectRedis(addr string) {
 }
 
 func (f *Framework) ConnectDb(addr string) {
-	db, err := sql.Open("postgres", addr)
+	db, err := sqlx.Open("postgres", addr)
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +52,7 @@ func (f *Framework) ConnectDb(addr string) {
 	f.Db = db
 }
 
-func (f *Framework) Run() {
+func (f *Framework) Run(queueWorkers int) {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 	go func() {
@@ -60,7 +61,7 @@ func (f *Framework) Run() {
 	}()
 	go func() {
 		defer wg.Done()
-		f.QueueHandler.Run(10)
+		f.QueueHandler.Run(queueWorkers)
 	}()
 	wg.Wait()
 	f.Db.Close()
